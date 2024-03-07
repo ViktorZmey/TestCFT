@@ -26,7 +26,5 @@ class MainActivity : AppCompatActivity() {
             .beginTransaction().replace(R.id.placeHalder, MainFragment.newInstance())
             .commit()
     }
-
-
 }
 

@@ -44,7 +44,9 @@ dependencies {
 
     implementation("com.android.volley:volley:1.2.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1")
-    implementation("com.squareup.picasso:picasso:2.71828")
+    implementation("com.squareup.picasso:picasso:2.8")
+    //swipe refresh layaout
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.11.0")
