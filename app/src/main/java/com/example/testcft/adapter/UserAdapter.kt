@@ -38,9 +38,23 @@ class UserAdapter(
                     append("${context.getString(R.string.fullNameShort)}: ")
                 }
             }.append(item.fullName)
-            textViewLocation.text = item.address
-            textViewCell.text = item.phones
+
+            textViewLocation.text = SpannableStringBuilder().bold {
+                color(Color.BLACK){
+                    append("${context.getString(R.string.address)}: ")
+                }
+            }.append(item.address)
+
+            textViewCell.text = SpannableStringBuilder().bold {
+                color(Color.BLACK){
+                    append("${context.getString(R.string.cell)}: ")
+                }
+            }.append(item.phones)
+
+
+
             root.setOnClickListener(listener)
+
             item.photoURL
                 .takeIf { URLUtil.isValidUrl(it) }
                 ?.let { Picasso.get().load(it).into(imageView) }

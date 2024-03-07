@@ -74,7 +74,14 @@ fun UserDTO.toUserItem() = UserItem(
         name.first,
         name.last
     ).joinToString( " "),
-    address = "",
+    address = arrayOf(
+        location.name,
+        location.number,
+        location.city,
+        location.state,
+        location.country
+    ).joinToString(", "),
     phones = "",
-    photoURL = "https://randomuser.me/api/?results=15"
+
+    photoURL = picture.toString()
 )
