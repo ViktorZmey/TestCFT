@@ -7,9 +7,8 @@ data class UserDTO(
     val gender: GenderDTO,
     val name: NameDTO,
     val location : AddressDTO,
-//    val cell: CellDTO
+    val cell: String,
     val picture: PictureDTO
-
 ) {
     enum class GenderDTO {
         MALE,
@@ -48,23 +47,17 @@ data class UserDTO(
         }
     }
 
-//    data class CellDTO(
-//        val cell: String
-//    ) {
-//        companion object {
-//            fun fromJSON(json: JSONObject): CellDTO = CellDTO(
-//                cell = json.getString("cell")
-//            )
-//        }
-//    }
-
 
     data class PictureDTO(
-        val photo: String
+        val large: String,
+        val medium: String,
+        val thumbnail: String
     ) {
         companion object{
             fun fromJSON(json: JSONObject): PictureDTO = PictureDTO(
-                photo = json.getJSONObject("picture").getString("medium")
+                large = json.getString("large"),
+                medium = json.getString("medium"),
+                thumbnail = json.getString("thumbnail")
             )
         }
     }
@@ -75,7 +68,7 @@ data class UserDTO(
             gender = parseGender(json.getString("gender")),
             name = NameDTO.fromJSON(json.getJSONObject("name")),
             location = AddressDTO.fromJSON(json.getJSONObject("location")),
-//            cell = CellDTO.fromJSON(json.getJSONObject("cell"))
+            cell = json.getString("cell"),
             picture = PictureDTO.fromJSON(json.getJSONObject("picture")),
         )
 

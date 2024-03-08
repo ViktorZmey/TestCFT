@@ -10,7 +10,9 @@ import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.net.URL
 
-class MainViewModel : ViewModel() {
+class MainViewModel(
+    private val userDao: UserDao = MyApplication.userDataBase.getDao()
+) : ViewModel() {
     private val _liveDataList = MutableLiveData<List<UserItem>>()
     val liveDataList: LiveData<List<UserItem>> = _liveDataList
 
@@ -63,6 +65,17 @@ class MainViewModel : ViewModel() {
         return listUser
     }
 
+    private suspend fun databaseEntry(result: String) : List<UserDTO> = withContext(Dispatchers.IO) {
+        val jsonObject = JSONObject(result)
+        val jsonObjectArray = jsonObject.getJSONArray("results")
+        val userEntities = (0 until jsonObjectArray.length()).map { idx ->
+            UserDBEntity(jsonString = jsonObjectArray.getJSONObject(idx).toString())
+        }
+        userDao.deleteAll()
+        userDao.insertUsers(userEntities)
+        userDao.getAllUsers().map { UserDTO.fromJSON(JSONObject(it.jsonString)) }
+    }
+
     fun refreshListUsers() {
         requestUsersData()
     }
@@ -81,7 +94,7 @@ fun UserDTO.toUserItem() = UserItem(
         location.state,
         location.country
     ).joinToString(", "),
-    phones = "",
+    phones = cell,
+    photoURL = picture.medium
 
-    photoURL = picture.toString()
 )
