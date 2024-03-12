@@ -2,33 +2,28 @@ package com.example.testcft.adapter
 
 import android.content.Context
 import android.graphics.Color
-import android.provider.CalendarContract.Colors
-import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.URLUtil
-import androidx.core.net.toUri
 import androidx.core.text.bold
 import androidx.core.text.color
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.testcft.R
-import com.example.testcft.UserItem
 import com.example.testcft.databinding.ListItemBinding
 import com.squareup.picasso.Picasso
-import java.net.URL
 
 class UserAdapter(
-    val context: Context,
-    val listener: Listener?
+    private val context: Context,
+    private val listener: Listener? = null
 ) : ListAdapter<UserItem, UserAdapter.Holder>(Comparator()) {
 
     class Holder(
         view: View,
-        val context: Context
+        private val context: Context
     ) : RecyclerView.ViewHolder(view) {
         private val binding = ListItemBinding.bind(view)
 
@@ -51,8 +46,6 @@ class UserAdapter(
                 }
             }.append(item.phones)
 
-
-
             root.setOnClickListener(listener)
 
             item.photoURL
@@ -61,9 +54,9 @@ class UserAdapter(
         }
     }
 
-    class Comparator : DiffUtil.ItemCallback<UserItem>(){
+    class Comparator : DiffUtil.ItemCallback<UserItem>() {
         override fun areItemsTheSame(oldItem: UserItem, newItem: UserItem): Boolean {
-            return oldItem == newItem
+            return oldItem.id == newItem.id
         }
 
         override fun areContentsTheSame(oldItem: UserItem, newItem: UserItem): Boolean {
@@ -78,6 +71,7 @@ class UserAdapter(
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val item = getItem(position)
+
         holder.bind(item) {
             listener?.onClickItem(item, position)
         }

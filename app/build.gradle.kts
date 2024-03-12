@@ -44,6 +44,9 @@ dependencies {
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 
+//    viewModel
+    implementation("androidx.fragment:fragment-ktx:1.6.2")
+
     implementation("androidx.room:room-runtime:2.6.1")
     annotationProcessor("androidx.room:room-compiler:2.6.1")
     ksp("androidx.room:room-compiler:2.6.1")

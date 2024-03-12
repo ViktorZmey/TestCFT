@@ -1,15 +1,21 @@
 package com.example.testcft
 
-import android.graphics.Picture
 import org.json.JSONObject
+import java.io.Serializable
 
 data class UserDTO(
-    val gender: GenderDTO,
-    val name: NameDTO,
-    val location : AddressDTO,
-    val cell: String,
-    val picture: PictureDTO
-) {
+    var _id : Long = 0,
+    val gender : GenderDTO,
+    val name : NameDTO,
+    val address : AddressDTO,
+    val location: LocationDTO,
+    val email : String,
+    val dob : DobDTO,
+    val phone : String,
+    val cell : String,
+    val picture : PictureDTO,
+    val nat : String
+) : Serializable {
     enum class GenderDTO {
         MALE,
         FEMALE
@@ -47,6 +53,29 @@ data class UserDTO(
         }
     }
 
+    data class LocationDTO(
+        val latitude: Double,
+        val longitude: Double
+    ) {
+        companion object {
+            fun fromJSON(json: JSONObject) = LocationDTO(
+                latitude = json.getDouble("latitude"),
+                longitude = json.getDouble("longitude")
+            )
+        }
+    }
+
+    data class DobDTO(
+        val date: String,
+        val age: String
+    ) {
+        companion object{
+            fun fromJSON(json: JSONObject): DobDTO = DobDTO(
+                date = json.getString("date"),
+                age = json.getString("age"),
+            )
+        }
+    }
 
     data class PictureDTO(
         val large: String,
@@ -67,9 +96,14 @@ data class UserDTO(
         fun fromJSON(json: JSONObject) : UserDTO = UserDTO(
             gender = parseGender(json.getString("gender")),
             name = NameDTO.fromJSON(json.getJSONObject("name")),
-            location = AddressDTO.fromJSON(json.getJSONObject("location")),
+            address = AddressDTO.fromJSON(json.getJSONObject("location")),
+            location = LocationDTO.fromJSON(json.getJSONObject("location").getJSONObject("coordinates")),
+            email = json.getString("email"),
+            dob = DobDTO.fromJSON(json.getJSONObject("dob")),
+            phone = json.getString("phone"),
             cell = json.getString("cell"),
             picture = PictureDTO.fromJSON(json.getJSONObject("picture")),
+            nat = json.getString("nat")
         )
 
         private fun parseGender(value: String) : GenderDTO = when (value) {
