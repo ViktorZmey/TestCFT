@@ -103,9 +103,7 @@ class UserDetailAdapter(
                 val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item_details, parent, false)
                 HolderDetails(view, context)
             }
-            else -> {
-                throw Exception("Такого быть не должно!")
-            }
+            else -> throw Exception() // "Такого быть не должно!"
         }
     }
 

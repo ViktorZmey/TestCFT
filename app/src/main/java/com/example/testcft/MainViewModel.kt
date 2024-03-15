@@ -6,12 +6,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.testcft.adapter.UserItem
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.net.URL
-import kotlin.random.Random
+
+private const val LOAD_USERS_URL = "https://randomuser.me/api/?results=15"
 
 class MainViewModel(
     private val userDao: UserDao = MyApplication.userDataBase.getDao()
@@ -34,7 +34,7 @@ class MainViewModel(
         viewModelScope.launch {
             val result: Result<String> = withContext(Dispatchers.IO) {
                 runCatching {
-                    URL("https://randomuser.me/api/?results=15").readText()
+                    URL(LOAD_USERS_URL).readText()
                 }
             }
             val result2: Result<List<UserDTO>> = result.map { databaseEntry(it) }
