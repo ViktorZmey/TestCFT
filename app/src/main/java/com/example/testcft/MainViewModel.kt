@@ -16,8 +16,8 @@ import kotlin.random.Random
 class MainViewModel(
     private val userDao: UserDao = MyApplication.userDataBase.getDao()
 ) : ViewModel() {
-    private val _UserItemLiveData = MutableLiveData<List<UserItem>>()
-    val UserItemLiveData: LiveData<List<UserItem>> = _UserItemLiveData
+    private val _userItemLiveData = MutableLiveData<Result<List<UserItem>>>()
+    val userItemLiveData: LiveData<Result<List<UserItem>>> = _userItemLiveData
 
     init {
         viewModelScope.launch {
@@ -25,31 +25,29 @@ class MainViewModel(
             if (users.isEmpty()) {
                 requestUsersData()
             } else {
-                updateLiveDataList(users)
+                updateLiveDataList(Result.success(users))
             }
         }
     }
 
     private fun requestUsersData() {
         viewModelScope.launch {
-            val result = withContext(Dispatchers.IO) {
-                kotlin.runCatching {
-                    if (Random.nextInt(100) >= 0) {
-                        URL("https://randomuser.me/api/?results=15").readText()
-                    } else {
-                        delay(500)
-                        throw Exception("Load users failed")
-                    }
+            val result: Result<String> = withContext(Dispatchers.IO) {
+                runCatching {
+                    URL("https://randomuser.me/api/?results=15").readText()
                 }
             }
-            result
-                .onSuccess { updateLiveDataList(databaseEntry(it)) }
-                .onFailure { println(it) }
+            val result2: Result<List<UserDTO>> = result.map { databaseEntry(it) }
+            updateLiveDataList(result2)
         }
     }
 
-    private fun updateLiveDataList(newList: List<UserDTO>) {
-        _UserItemLiveData.value = newList.map { it.toUserItem() }
+    private fun updateLiveDataList(result: Result<List<UserDTO>>) {
+        _userItemLiveData.value = result.map {
+            it.map { user ->
+                user.toUserItem()
+            }
+        }
     }
 
     private suspend fun databaseEntry(result: String) : List<UserDTO> = withContext(Dispatchers.IO) {
@@ -82,12 +80,15 @@ fun UserDTO.toUserItem() = UserItem(
         name.last
     ).joinToString( " "),
     address = arrayOf(
-        address.name,
-        address.number,
+        address.streetName,
+        address.houseNumber,
         address.city,
         address.state,
-        address.country
+        address.country,
+        address.postcode
     ).joinToString(", "),
     phones = cell,
     photoURL = picture.medium
 )
+
+

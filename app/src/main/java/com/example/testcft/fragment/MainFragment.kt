@@ -17,9 +17,7 @@ import com.example.testcft.databinding.FragmentMainBinding
 class MainFragment : Fragment() {
     private lateinit var binding: FragmentMainBinding
     private lateinit var adapter: UserAdapter
-
     private val model: MainViewModel by activityViewModels()
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,8 +37,12 @@ class MainFragment : Fragment() {
     }
 
     private fun bindWithViewModel() {
-        model.UserItemLiveData.observe(viewLifecycleOwner) {
-            adapter.submitList(it)
+        model.userItemLiveData.observe(viewLifecycleOwner) {
+            it.onSuccess { items ->
+                adapter.submitList(items)
+            }.onFailure { exception ->
+                showAlert(exception.localizedMessage)
+            }
             binding.refreshLayout.isRefreshing = false
         }
     }
@@ -58,6 +60,17 @@ class MainFragment : Fragment() {
         val intent = Intent(context, UserDetailsActivity::class.java)
         intent.putExtra("userId", userId)
         startActivity(intent)
+    }
+
+    private fun showAlert(message : String?){
+        val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        builder.setMessage(message ?: getString(com.example.testcft.R.string.loadUsersFailed))
+        builder.setNeutralButton("Cancel", null)
+        builder.setPositiveButton("Try again") { _, _ ->
+            binding.refreshLayout.isRefreshing = true
+            model.refreshListUsers()
+        }
+        builder.show()
     }
 
     companion object {

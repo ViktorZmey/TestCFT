@@ -2,6 +2,8 @@ package com.example.testcft
 
 import org.json.JSONObject
 import java.io.Serializable
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 data class UserDTO(
     var _id : Long = 0,
@@ -36,19 +38,21 @@ data class UserDTO(
     }
 
     data class AddressDTO(
-        val name: String,
-        val number: String,
+        val streetName: String,
+        val houseNumber: String,
         val city: String,
         val state: String,
-        val country: String
+        val country: String,
+        val postcode: String
     ) {
         companion object {
             fun fromJSON(json: JSONObject): AddressDTO = AddressDTO(
-                name = json.getJSONObject("street").getString("name"),
-                number = json.getJSONObject("street").getString("number"),
+                streetName = json.getJSONObject("street").getString("name"),
+                houseNumber = json.getJSONObject("street").getString("number"),
                 city = json.getString("city"),
                 state = json.getString("state"),
-                country = json.getString("country")
+                country = json.getString("country"),
+                postcode = json.getString("postcode")
             )
         }
     }
@@ -66,12 +70,12 @@ data class UserDTO(
     }
 
     data class DobDTO(
-        val date: String,
+        val date: LocalDateTime,
         val age: String
     ) {
         companion object{
             fun fromJSON(json: JSONObject): DobDTO = DobDTO(
-                date = json.getString("date"),
+                date = LocalDateTime.parse(json.getString("date"), DateTimeFormatter.ISO_DATE_TIME),
                 age = json.getString("age"),
             )
         }
@@ -90,7 +94,6 @@ data class UserDTO(
             )
         }
     }
-
 
     companion object {
         fun fromJSON(json: JSONObject) : UserDTO = UserDTO(

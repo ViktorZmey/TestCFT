@@ -5,4 +5,17 @@
     <string name="fullNameShort">ФИО</string>
     <string name="address">Адресс</string>
     <string name="cell">"Телефон: "</string>
+    <string name="firstName">Имя</string>
+    <string name="lastName">Фамилия</string>
+    <string name="location">Координаты</string>
+    <string name="email">Email</string>
+    <string name="dobDate">Дата рождения</string>
+    <string name="dobAge">Возраст</string>
+    <string name="phone">Домашний телефон</string>
+    <string name="nat">Национальность</string>
+    <string name="gender">Пол</string>
+    <string name="photo">Фото</string>
+    <string name="noSuchUser">Такой пользователь отсутствует</string>
+    <string name="loadUsersFailed">Не удалось загрузить пользователей</string>
+    <string name="ok">ОК</string>
 </resources>

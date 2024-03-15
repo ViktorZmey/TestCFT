@@ -9,12 +9,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+
 
 class UserDetailsModel(
     private val userDao: UserDao = MyApplication.userDataBase.getDao()
 ) : ViewModel() {
-    private val _userDetailItemsLiveData = MutableLiveData<List<UserDetailsItem>>()
-    val userDetailItemsLiveData: LiveData<List<UserDetailsItem>> = _userDetailItemsLiveData
+    private val _userDetailItemsLiveData = MutableLiveData<Result<List<UserDetailsItem>>>()
+    val userDetailItemsLiveData: LiveData<Result<List<UserDetailsItem>>> = _userDetailItemsLiveData
+    private var user: UserDTO? = null
 
     private suspend fun getUser(id: Long) : Result<UserDTO> = withContext(Dispatchers.IO) {
         userDao.findUser(id)?.run {
@@ -24,36 +28,45 @@ class UserDetailsModel(
 
     fun setUserId(id: Long) {
         viewModelScope.launch {
-            getUser(id)
-                .onSuccess {
-                    updateLiveDataList(it)
-                }.onFailure {
-
-                }
+            updateLiveDataList(getUser(id))
         }
     }
 
-    private fun updateLiveDataList(user: UserDTO) {
-        _userDetailItemsLiveData.value = user.toUserDetailItems()
+    private fun updateLiveDataList(result: Result<UserDTO>) {
+        user = result.getOrNull()
+        _userDetailItemsLiveData.value = result.map { it.toUserDetailItems() }
+    }
+
+    fun getLocation() : Pair<Double, Double>? {
+        return user?.location?.run { Pair(latitude, longitude) }
     }
 }
 
 fun UserDTO.toUserDetailItems() : List<UserDetailsItem> {
     val list = mutableListOf<UserDetailsItem>() // ArrayList<UserDetailsItem>()
-//    list.add(UserDetailsItem(type = UserDetailsItem.ContentType.Photo(picture.large)))
-    list.add(UserDetailsItem(type = UserDetailsItem.ContentType.FirstName(name.first)))
-    list.add(UserDetailsItem(type = UserDetailsItem.ContentType.LastName(name.last)))
-    list.add(UserDetailsItem(type = UserDetailsItem.ContentType.AddressName(address.name)))
-    list.add(UserDetailsItem(type = UserDetailsItem.ContentType.AddressNumber(address.number)))
-    list.add(UserDetailsItem(type = UserDetailsItem.ContentType.AddressCity(address.city)))
-    list.add(UserDetailsItem(type = UserDetailsItem.ContentType.AddressState(address.state)))
-    list.add(UserDetailsItem(type = UserDetailsItem.ContentType.AddressCountry(address.country)))
-    list.add(UserDetailsItem(type = UserDetailsItem.ContentType.Email(email)))
-    list.add(UserDetailsItem(type = UserDetailsItem.ContentType.DobDate(dob.date)))
-    list.add(UserDetailsItem(type = UserDetailsItem.ContentType.DobAge(dob.age)))
-    list.add(UserDetailsItem(type = UserDetailsItem.ContentType.Phone(phone)))
-    list.add(UserDetailsItem(type = UserDetailsItem.ContentType.Cell(cell)))
-    list.add(UserDetailsItem(type = UserDetailsItem.ContentType.Nat(nat)))
-
+    list.add(UserDetailsItem(UserDetailsItem.ContentType.Photo(picture.large)))
+    list.add(UserDetailsItem(UserDetailsItem.ContentType.Gender(gender.name)))
+    list.add(UserDetailsItem(UserDetailsItem.ContentType.FirstName(name.first)))
+    list.add(UserDetailsItem(UserDetailsItem.ContentType.LastName(name.last)))
+    list.add(address.run {
+        listOf(country, state, city, streetName, houseNumber, postcode)
+            .joinToString(", ")
+            .let { UserDetailsItem(UserDetailsItem.ContentType.Address(it), true) }
+    })
+    list.add(location.run { 
+        listOf(latitude, longitude)
+            .joinToString(", ")
+            .let { UserDetailsItem(UserDetailsItem.ContentType.Location(it), true)  }
+    })
+    list.add(UserDetailsItem(UserDetailsItem.ContentType.Email(email), true))
+    list.add(UserDetailsItem(UserDetailsItem.ContentType.DobDate(
+        DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).format(dob.date)
+    )))
+    list.add(UserDetailsItem(UserDetailsItem.ContentType.DobAge(dob.age)))
+    list.add(UserDetailsItem(UserDetailsItem.ContentType.Phone(phone),true))
+    list.add(UserDetailsItem(UserDetailsItem.ContentType.Cell(cell), true))
+    list.add(UserDetailsItem(UserDetailsItem.ContentType.Nat(nat)))
     return list
 }
+
+
